@@ -1,17 +1,15 @@
 import { Application, Router, RouterContext } from "https://deno.land/x/oak@v6.5.0/mod.ts";
-import { init, WASI } from 'https://deno.land/x/wasm/wasi.ts';
+import init, { square } from "../pkg/wasm_deno.js";
 
-await init();
 
-let wasi = new WASI({
-  env: {},
-  args: [],
-});
-
-const moduleBytes = fetch("https://github.com/ytuis/deno-wasm-sample/wasm/wasm-deno.wasm");
-const module = await WebAssembly.compileStreaming(moduleBytes);
-// Instantiate the WASI module
-await wasi.instantiate(module, {});
+if (Deno.env.get("ENVIRONMENT") === "production") {
+  const res = await fetch(
+    "https://raw.githubusercontent.com/ytuis/deno-wasm-sample/main/pkg/wasm_deno_bg.wasm"
+  );
+  await init(await res.arrayBuffer());
+} else {
+  await init(Deno.readFile("../pkg/wasm_deno_bg.wasm"));
+}
 
 
 const app = new Application();
@@ -32,12 +30,10 @@ router.get('/', (ctx: RouterContext) => {
   ctx.response.body = "Hello World!";
 })
 
-router.get('/', (ctx: RouterContext) => {
-  // Run the start function
-  let exitCode = wasi.start(1);
-  let stdout = wasi.getStdoutString();
-
-  ctx.response.body = stdout;
+router.get('/square', (ctx: RouterContext) => {
+  const num = Math.floor(Math.random() * 10)
+  const ans = square(num);
+  ctx.response.body = `${num} squared is ${ans}`;
 })
 
 app.use(router.routes());
