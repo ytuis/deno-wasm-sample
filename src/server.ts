@@ -2,14 +2,11 @@ import { Application, Router, RouterContext } from "https://deno.land/x/oak@v6.5
 import init, { square } from "./pkg/wasm_deno.js";
 
 
-if (Deno.env.get("ENVIRONMENT") === "production") {
-  const res = await fetch(
-    "https://raw.githubusercontent.com/ytuis/deno-wasm-sample/main/src/pkg/wasm_deno_bg.wasm"
-  );
-  await init(await res.arrayBuffer());
-} else {
-  await init(Deno.readFile("./pkg/wasm_deno_bg.wasm"));
-}
+const res = await fetch(
+  "https://raw.githubusercontent.com/ytuis/deno-wasm-sample/main/src/pkg/wasm_deno_bg.wasm"
+);
+await init(await res.arrayBuffer());
+
 
 
 const app = new Application();
