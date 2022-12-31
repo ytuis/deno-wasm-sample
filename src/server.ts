@@ -1,12 +1,4 @@
 import { Application, Router, RouterContext } from "https://deno.land/x/oak@v6.5.0/mod.ts";
-import init, { square } from "./pkg/wasm_deno.js";
-
-
-const res = await fetch(
-  "https://raw.githubusercontent.com/ytuis/deno-wasm-sample/main/src/pkg/wasm_deno_bg.wasm"
-);
-await init(await res.arrayBuffer());
-
 
 
 const app = new Application();
@@ -25,12 +17,6 @@ app.addEventListener("error", (evt) => {
 
 router.get('/', (ctx: RouterContext) => {
   ctx.response.body = "Hello World!";
-})
-
-router.get('/square', (ctx: RouterContext) => {
-  const num = Math.floor(Math.random() * 10)
-  const ans = square(num);
-  ctx.response.body = `${num} squared is ${ans}`;
 })
 
 app.use(router.routes());
